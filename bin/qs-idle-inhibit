@@ -1,0 +1,92 @@
+#!/bin/sh
+set -eu
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+PIDFILE="$STATE_DIR/quickshell-idle-inhibit.pid"
+LOG_PATH="${TMPDIR:-/tmp}/quickshell-idle-inhibit.log"
+MATCH="systemd-inhibit --what=idle:sleep --who=dotfiles-quickshell"
+
+ensure_state_dir() {
+  mkdir -p "$STATE_DIR"
+}
+
+matching_pids() {
+  ps -u "${USER:-$(id -un)}" -o pid=,comm=,args= |
+    awk -v needle="$MATCH" '$2 == "systemd-inhibit" && index($0, needle) { print $1 }'
+}
+
+status() {
+  ensure_state_dir
+
+  if ! command -v systemd-inhibit >/dev/null 2>&1; then
+    printf 'missing'
+    return
+  fi
+
+  if [ -r "$PIDFILE" ] && read -r pid < "$PIDFILE" && kill -0 "$pid" 2>/dev/null; then
+    printf 'active'
+    return
+  fi
+
+  if [ -n "$(matching_pids)" ]; then
+    printf 'active'
+    return
+  fi
+
+  rm -f "$PIDFILE" 2>/dev/null || true
+  printf 'inactive'
+}
+
+enable() {
+  ensure_state_dir
+
+  if [ "$(status)" = active ]; then
+    return
+  fi
+
+  if command -v setsid >/dev/null 2>&1; then
+    setsid systemd-inhibit --what=idle:sleep --who=dotfiles-quickshell --why="Quick utility idle inhibit" sleep infinity > "$LOG_PATH" 2>&1 &
+  else
+    nohup systemd-inhibit --what=idle:sleep --who=dotfiles-quickshell --why="Quick utility idle inhibit" sleep infinity > "$LOG_PATH" 2>&1 &
+  fi
+
+  printf '%s\n' "$!" > "$PIDFILE"
+}
+
+disable() {
+  ensure_state_dir
+
+  if [ -r "$PIDFILE" ] && read -r pid < "$PIDFILE" && kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+  fi
+
+  for pid in $(matching_pids); do
+    [ "$pid" != "$$" ] || continue
+    kill "$pid" 2>/dev/null || true
+  done
+
+  rm -f "$PIDFILE" 2>/dev/null || true
+}
+
+case "${1:-status}" in
+  status)
+    status
+    ;;
+  enable)
+    enable
+    ;;
+  disable)
+    disable
+    ;;
+  toggle)
+    if [ "$(status)" = active ]; then
+      disable
+    else
+      enable
+    fi
+    ;;
+  *)
+    printf 'usage: qs-idle-inhibit [status|enable|disable|toggle]\n' >&2
+    exit 2
+    ;;
+esac

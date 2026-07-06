@@ -1,0 +1,484 @@
+{
+  "general": {
+    "logo": "",
+    "showOverFullscreen": false,
+    "apps": {
+      "terminal": ["alacritty", "kitty"],
+      "audio": ["pavucontrol", "pwvucontrol"],
+      "network": ["nm-connection-editor"],
+      "explorer": ["nautilus", "thunar", "dolphin"],
+      "settings": ["gnome-control-center", "systemsettings"],
+      "playback": ["spotify", "youtube-music", "mpv", "vlc", "elisa"]
+    },
+    "battery": {
+      "warnLevels": [
+        {
+          "level": 20,
+          "title": "Low battery",
+          "message": "You might want to plug in a charger",
+          "icon": "battery-caution-symbolic"
+        },
+        {
+          "level": 10,
+          "title": "Very low battery",
+          "message": "Plug in power soon",
+          "icon": "battery-low-symbolic"
+        },
+        {
+          "level": 5,
+          "title": "Critical battery",
+          "message": "Suspending soon unless power is connected",
+          "icon": "battery-empty-symbolic",
+          "critical": true
+        }
+      ],
+      "criticalLevel": 3,
+      "criticalAction": "none"
+    }
+  },
+  "appearance": {
+    "deformScale": 1,
+    "anim": {
+      "enabled": true,
+      "durationScale": 1
+    },
+    "transparency": {
+      "enabled": false,
+      "barOpacity": 0.96,
+      "panelOpacity": 1,
+      "osdOpacity": 0.98
+    },
+    "rounding": 1,
+    "spacing": {
+      "scale": 1
+    },
+    "padding": {
+      "scale": 1
+    },
+    "font": {
+      "scale": 1,
+      "scaleWithMonitor": true,
+      "monitorScaleWeight": 1,
+      "clock": "",
+      "workspaces": "",
+      "label": {
+        "family": "",
+        "medium": { "size": 10 },
+        "small": { "size": 8 }
+      },
+      "body": {
+        "family": "",
+        "medium": { "size": 10 },
+        "small": { "size": 8 }
+      },
+      "title": {
+        "family": "",
+        "medium": { "size": 11 },
+        "small": { "size": 9 }
+      }
+    }
+  },
+  "calendar": {
+    "font": {
+      "scale": 1,
+      "labelSize": 8,
+      "titleSize": 9,
+      "detailSize": 7,
+      "daySize": 9
+    }
+  },
+  "panel": {
+    "font": {
+      "scale": 1,
+      "titleSize": 9,
+      "labelSize": 7,
+      "bodySize": 7,
+      "metaSize": 6,
+      "heroSize": 11,
+      "iconSize": 17
+    }
+  },
+  "bar": {
+    "enabled": true,
+    "persistent": true,
+    "showOnHover": false,
+    "dragThreshold": 20,
+    "excludedScreens": [],
+    "font": {
+      "scale": 1,
+      "labelSize": 8,
+      "bodySize": 8,
+      "clockSize": 9,
+      "badgeSize": 6,
+      "workspaceIconSize": 6
+    },
+    "scrollActions": {
+      "workspaces": true,
+      "volume": true,
+      "brightness": true
+    },
+    "popouts": {
+      "activeWindow": true,
+      "tray": true,
+      "statusIcons": true
+    },
+    "logo": { "enabled": true },
+    "workspaces": {
+      "enabled": true,
+      "shown": 10,
+      "label": "",
+      "occupiedLabel": "",
+      "activeLabel": "",
+      "maxWindowIcons": 9,
+      "activeIndicator": true,
+      "activeTrail": true,
+      "wheelThreshold": 120,
+      "wheelCooldownMs": 180,
+      "wheelMaxSteps": 3,
+      "perMonitorWorkspaces": true,
+      "occupiedBg": true,
+      "showWindows": true,
+      "showWindowsOnSpecialWorkspaces": true,
+      "capitalisation": "preserve",
+      "specialWorkspaceIcons": [
+        { "name": "steam", "icon": "applications-games-symbolic" },
+        { "name": "music", "icon": "multimedia-player-symbolic" }
+      ],
+      "windowIcons": [
+        { "regex": "youtube|chrome-.*youtube", "icon": "youtube-music" },
+        { "regex": "spotify", "icon": "spotify" },
+        { "regex": "discord", "icon": "discord" }
+      ]
+    },
+    "activeWindow": {
+      "enabled": true,
+      "compact": false,
+      "inverted": false,
+      "showOnHover": true
+    },
+    "dashboard": { "enabled": true },
+    "media": { "enabled": true },
+    "clock": {
+      "enabled": true,
+      "background": true,
+      "showDate": true,
+      "showIcon": false
+    },
+    "system": { "enabled": true },
+    "power": { "enabled": true },
+    "statusIcons": { "enabled": true },
+    "tray": {
+      "enabled": true,
+      "background": true,
+      "compact": false,
+      "recolour": false,
+      "iconSize": 16,
+      "preferNativeMenu": false,
+      "nativeMenuFallback": false,
+      "nativeSubmenuFallback": false,
+      "hiddenIcons": [],
+      "iconSubs": []
+    },
+    "appearance": { "enabled": true },
+    "quickUtilities": { "enabled": true },
+    "nexus": { "enabled": true },
+    "notifications": { "enabled": true },
+    "entries": [
+      { "id": "logo", "enabled": true },
+      { "id": "dashboard", "enabled": true },
+      { "id": "workspaces", "enabled": true },
+      { "id": "activeWindow", "enabled": true },
+      { "id": "media", "enabled": true },
+      { "id": "spacer", "enabled": true },
+      { "id": "clock", "enabled": true },
+      { "id": "spacer", "enabled": true },
+      { "id": "system", "enabled": true },
+      { "id": "power", "enabled": true },
+      { "id": "statusIcons", "enabled": true },
+      { "id": "tray", "enabled": true },
+      { "id": "appearance", "enabled": true },
+      { "id": "quickUtilities", "enabled": true },
+      { "id": "nexus", "enabled": true },
+      { "id": "notifications", "enabled": true }
+    ],
+    "status": {
+      "audio": true,
+      "microphone": true,
+      "privacy": true,
+      "keyboard": true,
+      "lockStatus": true,
+      "network": true,
+      "showNetwork": true,
+      "showWifi": true,
+      "weather": true,
+      "bluetooth": true,
+      "brightness": true,
+      "showBattery": true,
+      "idleInhibit": true,
+      "updates": true,
+      "temperature": true
+    }
+  },
+  "monitors": {
+    "DP-1": {
+      "bar": {
+        "enabled": true
+      }
+    }
+  },
+  "launcher": {
+    "showOnHover": false,
+    "minHoverThreshold": 12,
+    "maxShown": 80,
+    "maxWallpapers": 9,
+    "specialPrefix": "@",
+    "actionPrefix": ">",
+    "font": {
+      "scale": 1,
+      "titleSize": 9,
+      "bodySize": 8,
+      "inputSize": 10,
+      "hintSize": 9,
+      "metaSize": 7
+    },
+    "enableDangerousActions": true,
+    "vimKeybinds": true,
+    "favouriteApps": [],
+    "hiddenApps": [],
+    "useFuzzy": {
+      "apps": false,
+      "actions": false,
+      "schemes": false,
+      "variants": false,
+      "wallpapers": false
+    },
+    "actions": [
+      {
+        "name": "Settings",
+        "icon": "preferences-system-symbolic",
+        "description": "Open system settings",
+        "command": "if command -v gnome-control-center >/dev/null 2>&1; then gnome-control-center; elif command -v systemsettings >/dev/null 2>&1; then systemsettings; fi",
+        "enabled": true,
+        "dangerous": false
+      },
+      {
+        "name": "Scheme",
+        "icon": "palette",
+        "description": "Change the current colour scheme",
+        "command": ["autocomplete", "scheme"],
+        "enabled": true,
+        "dangerous": false
+      },
+      {
+        "name": "Light",
+        "icon": "light-mode-symbolic",
+        "description": "Change the scheme to light mode",
+        "command": ["setMode", "light"],
+        "enabled": true,
+        "dangerous": false
+      }
+    ]
+  },
+  "dashboard": {
+    "enabled": true,
+    "showOnHover": false,
+    "profileImage": "",
+    "showDashboard": true,
+    "showMedia": true,
+    "showPerformance": true,
+    "showWeather": true,
+    "mediaUpdateInterval": 5000,
+    "resourceUpdateInterval": 3000,
+    "performance": {
+      "showBattery": true,
+      "showGpu": true,
+      "showCpu": true,
+      "showMemory": true,
+      "showStorage": true,
+      "showNetwork": true,
+      "showTemperature": true
+    }
+  },
+  "nexus": {
+    "enabled": true,
+    "networkRescanInterval": 120000
+  },
+  "picker": {
+    "commands": {
+      "open": "if command -v hyprpicker >/dev/null 2>&1; then hyprpicker -a; else notify-send 'Color picker unavailable' 'Install hyprpicker or configure picker.commands.open'; fi",
+      "openFreeze": "if command -v hyprpicker >/dev/null 2>&1; then hyprpicker -a -r; else notify-send 'Color picker unavailable' 'Install hyprpicker or configure picker.commands.openFreeze'; fi"
+    }
+  },
+  "sidebar": {
+    "enabled": true,
+    "showOnHover": false,
+    "minHoverThreshold": 12,
+    "width": 390,
+    "height": 560,
+    "topMargin": 52,
+    "rightMargin": 12
+  },
+  "notifs": {
+    "enabled": true,
+    "expire": true,
+    "fullscreen": "on",
+    "defaultExpireTimeout": 5000,
+    "fullscreenExpireTimeout": 2000,
+    "actionOnClick": false,
+    "font": {
+      "scale": 1,
+      "titleSize": 14,
+      "labelSize": 12,
+      "bodySize": 11,
+      "metaSize": 10,
+      "iconSize": 16
+    }
+  },
+  "background": {
+    "enabled": false,
+    "wallpaperEnabled": true,
+    "desktopClock": {
+      "enabled": false,
+      "scale": 1.0,
+      "position": "bottom-right",
+      "invertColors": false,
+      "font": {
+        "timeSize": 62,
+        "dateSize": 18
+      },
+      "background": {
+        "enabled": false,
+        "opacity": 0.22,
+        "blur": false
+      },
+      "shadow": {
+        "enabled": false,
+        "opacity": 0.4,
+        "blur": 0.4
+      }
+    },
+    "visualiser": {
+      "enabled": false,
+      "autoHide": true,
+      "blur": false,
+      "rounding": 1,
+      "spacing": 1,
+      "opacity": 0.26,
+      "height": 150
+    }
+  },
+  "keybindHelp": {
+    "font": {
+      "scale": 1,
+      "titleSize": 18,
+      "sectionTitleSize": 17,
+      "labelSize": 14,
+      "bodySize": 13,
+      "metaSize": 11
+    }
+  },
+  "submap": {
+    "font": {
+      "scale": 1,
+      "iconSize": 10,
+      "labelSize": 8,
+      "hintSize": 7
+    }
+  },
+  "utilities": {
+    "enabled": true,
+    "maxToasts": 4,
+    "toasts": {
+      "enabled": true,
+      "fullscreen": "off"
+    },
+    "quickToggles": {
+      "wifi": true,
+      "bluetooth": true,
+      "mic": true,
+      "privacy": true,
+      "dnd": true,
+      "idleInhibit": true,
+      "gameMode": true,
+      "weather": true,
+      "vpn": true,
+      "explorer": true,
+      "clipboard": true,
+      "wallpaper": true,
+      "recording": true,
+      "screenshotArea": true,
+      "screenshotScreen": true,
+      "settings": true
+    },
+    "vpn": {
+      "enabled": true,
+      "provider": [
+        {
+          "name": "nordvpn",
+          "displayName": "NordVPN",
+          "enabled": true
+        }
+      ]
+    }
+  },
+  "services": {
+    "weatherLocation": "",
+    "useFahrenheit": false,
+    "useFahrenheitPerformance": false,
+    "gpuType": "",
+    "useTwelveHourClock": false,
+    "audioIncrement": 0.05,
+    "brightnessIncrement": 0.05,
+    "maxVolume": 1.5,
+    "visualiserBars": 42,
+    "smartScheme": false,
+    "defaultPlayer": "",
+    "playerAliases": [],
+    "lyricsBackend": "Local",
+    "intervals": {
+      "resources": 3000,
+      "slowResources": 15000,
+      "status": 5000,
+      "fastStatus": 1000,
+      "tools": 30000,
+      "media": 5000,
+      "weather": 1800000,
+      "updates": 1800000,
+      "config": 2000
+    }
+  },
+  "osd": {
+    "enabled": true,
+    "hideDelay": 1100,
+    "enableBrightness": true,
+    "enableMicrophone": true
+  },
+  "session": {
+    "enabled": true,
+    "icons": {
+      "lock": "system-lock-screen-symbolic",
+      "logout": "system-log-out-symbolic",
+      "shutdown": "system-shutdown-symbolic",
+      "hibernate": "media-playback-pause-symbolic",
+      "reboot": "system-reboot-symbolic"
+    },
+    "commands": {
+      "lock": "if command -v hyprlock >/dev/null 2>&1; then pidof hyprlock >/dev/null 2>&1 || hyprlock; else loginctl lock-session; fi",
+      "logout": ["logout"],
+      "shutdown": ["poweroff"],
+      "hibernate": ["hibernate"],
+      "reboot": ["reboot"]
+    }
+  },
+  "lock": {
+    "enabled": true,
+    "useFprint": false,
+    "commands": {
+      "lock": "if command -v hyprlock >/dev/null 2>&1; then pidof hyprlock >/dev/null 2>&1 || hyprlock; else loginctl lock-session; fi"
+    }
+  },
+  "paths": {
+    "wallpaperDir": "~/Pictures/Wallpapers",
+    "lyricsDir": "~/Music/lyrics"
+  }
+}

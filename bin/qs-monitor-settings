@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+MONITORS_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/hypr/monitors.conf"
+
+if command -v nwg-displays >/dev/null 2>&1; then
+  exec nwg-displays -m "$MONITORS_PATH"
+fi
+
+if command -v notify-send >/dev/null 2>&1; then
+  notify-send "Display settings unavailable" "Install nwg-displays to edit monitor layout, resolution, and refresh rate."
+else
+  printf '%s\n' "Install nwg-displays to edit monitor layout, resolution, and refresh rate." >&2
+fi
+
+exit 1

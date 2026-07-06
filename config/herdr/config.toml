@@ -1,0 +1,6 @@
+onboarding = false
+# herdr configuration
+# See `herdr --default-config` for the full schema.
+
+[keys]
+prefix = "ctrl+alt+b"

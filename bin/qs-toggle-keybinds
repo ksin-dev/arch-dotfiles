@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+
+CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+LOCK_PATH="$RUNTIME_DIR/qs-toggle-keybinds.lock"
+STAMP_PATH="$RUNTIME_DIR/qs-toggle-keybinds.last"
+
+run_toggle() {
+  if qs ipc call keybinds toggle >/dev/null 2>&1; then
+    exit 0
+  fi
+
+  qs -p "$CONFIG_PATH" --no-duplicate >/tmp/quickshell-keybinds.log 2>&1 &
+  sleep 0.2
+  qs ipc call keybinds toggle >/dev/null 2>&1 || true
+}
+
+(
+  flock -n 9 || exit 0
+
+  now="$(date +%s%3N)"
+  last="$(cat "$STAMP_PATH" 2>/dev/null || printf '0')"
+  if [ "$((now - last))" -lt 250 ]; then
+    exit 0
+  fi
+  printf '%s\n' "$now" > "$STAMP_PATH"
+
+  run_toggle
+) 9>"$LOCK_PATH"

@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Local temporary backups
+backup-*/
+
+# Machine-local Hyprland output/workspace mappings
+config/hypr/workspaces.conf
+config/hypr/workspaces.lua

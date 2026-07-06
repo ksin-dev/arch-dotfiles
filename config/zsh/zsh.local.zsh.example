@@ -1,0 +1,19 @@
+# Copy this file to ~/.config/zsh.local.zsh and edit it for each machine.
+# The installer does not create, replace, or delete ~/.config/zsh.local.zsh.
+
+# asdf
+export PATH="$HOME/.asdf/shims:$PATH"
+
+# Flutter
+export PATH="/opt/flutter/bin:$PATH"
+
+# Java
+export JAVA_HOME="/usr/lib/jvm/default"
+export PATH="$JAVA_HOME/bin:$PATH"
+
+# Android
+export ANDROID_HOME="$HOME/Android/Sdk"
+export PATH="/opt/android-studio/bin:$ANDROID_HOME/cmdline-tools/bin:$PATH"
+
+# Browser for tools that need an explicit Chrome binary
+export CHROME_EXECUTABLE="/usr/bin/google-chrome-stable"

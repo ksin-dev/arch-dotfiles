@@ -1,0 +1,10 @@
+{
+  "lockEnabled": true,
+  "lockTimeout": 300,
+  "displayEnabled": true,
+  "displayTimeout": 600,
+  "suspendEnabled": true,
+  "suspendTimeout": 900,
+  "hibernateEnabled": false,
+  "hibernateTimeout": 0
+}

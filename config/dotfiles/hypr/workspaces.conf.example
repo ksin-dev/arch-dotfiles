@@ -1,0 +1,6 @@
+# Machine-local workspace rules.
+# Copy this file to ~/.config/dotfiles/hypr/workspaces.conf and edit monitor
+# names for your machine. Example:
+#
+# workspace=1,monitor:eDP-1,default:true
+# workspace=2,monitor:DP-1

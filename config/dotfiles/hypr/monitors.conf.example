@@ -1,0 +1,4 @@
+# Machine-local monitor rules.
+# Open SUPER+SHIFT+P and save from nwg-displays to update this file.
+
+monitor=,preferred,auto,1

@@ -1,0 +1,236 @@
+#!/bin/sh
+set -eu
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+STATE_FILE="$STATE_DIR/monitor-mode"
+DISPLAY_STATE_FILE="$STATE_DIR/monitor-mode-indicator"
+CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/hypr/monitors.conf"
+
+notify() {
+  if [ "${HYPR_MONITOR_CYCLE_DRY_RUN:-0}" = "1" ]; then
+    printf 'notify: %s\n' "$1"
+    return
+  fi
+
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Display mode" "$1"
+  else
+    printf '%s\n' "$1"
+  fi
+}
+
+monitors_json() {
+  json="$(hyprctl monitors all -j 2>/dev/null || true)"
+  if printf '%s\n' "$json" | jq -e . >/dev/null 2>&1; then
+    printf '%s\n' "$json"
+  else
+    printf '[]\n'
+  fi
+}
+
+monitor_count() {
+  jq '[.[] | select(.disabled == false or .disabled == null)] | length'
+}
+
+connected_count() {
+  jq 'length'
+}
+
+primary_name() {
+  jq -r --arg preferred "$(configured_primary)" '([.[] | select(.name == $preferred)][0].name // [.[] | select((.disabled == false or .disabled == null) and (.x // -999999) == 0 and (.y // -999999) == 0)][0].name // [.[] | select((.disabled == false or .disabled == null) and .focused == true)][0].name // [.[] | select(.disabled == false or .disabled == null)][0].name // .[0].name // empty)'
+}
+
+configured_primary() {
+  if [ -s "$CONFIG_PATH" ]; then
+    primary="$(sed -n 's/^[[:space:]]*workspace[[:space:]]*=[^,]*,[[:space:]]*monitor:\([^,]*\),.*default:true.*/\1/p' "$CONFIG_PATH" | sed -n '1p')"
+    if [ -n "$primary" ]; then
+      printf '%s\n' "$primary"
+      return
+    fi
+
+    sed -n 's/^[[:space:]]*monitor[[:space:]]*=[[:space:]]*\([^,[:space:]]*\),.*/\1/p' "$CONFIG_PATH" | sed -n '1p'
+  fi
+}
+
+secondary_name() {
+  primary="$1"
+  jq -r --arg primary "$primary" '([.[] | select(.name != $primary)][0].name // empty)'
+}
+
+connected_names() {
+  jq -r '.[].name'
+}
+
+scale_for() {
+  name="$1"
+  jq -r --arg name "$name" '([.[] | select(.name == $name)][0].scale // "auto") | tostring'
+}
+
+detect_mode() {
+  json="$1"
+  active_count="$(printf '%s\n' "$json" | monitor_count)"
+  if [ "$active_count" -le 1 ]; then
+    printf 'single\n'
+    return
+  fi
+
+  mirrored="$(printf '%s\n' "$json" | jq -r '[.[] | select(.disabled == false and .mirrorOf != "none")] | length')"
+  if [ "$mirrored" -gt 0 ]; then
+    printf 'mirror\n'
+  else
+    printf 'extend\n'
+  fi
+}
+
+next_mode() {
+  current="$1"
+  case "$current" in
+    extend) printf 'mirror' ;;
+    mirror) printf 'primary' ;;
+    primary) printf 'secondary' ;;
+    secondary | single | *) printf 'extend' ;;
+  esac
+}
+
+apply_rule() {
+  if [ "${HYPR_MONITOR_CYCLE_DRY_RUN:-0}" = "1" ]; then
+    printf 'hyprctl keyword monitor %s\n' "$1"
+    return
+  fi
+
+  if ! output="$(hyprctl keyword monitor "$1" 2>&1)"; then
+    notify "Failed to apply monitor rule: $1"
+    printf '%s\n' "$output" >&2
+    exit 1
+  fi
+}
+
+apply_extend() {
+  json="$1"
+  primary="$2"
+
+  if [ -s "$CONFIG_PATH" ]; then
+    grep -E '^[[:space:]]*monitor[[:space:]]*=' "$CONFIG_PATH" | while IFS= read -r line; do
+      rule="${line#*=}"
+      rule="$(printf '%s\n' "$rule" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+      [ -n "$rule" ] || continue
+      apply_rule "$rule"
+    done
+    return
+  fi
+  first=1
+  printf '%s\n' "$json" | connected_names | while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    scale="$(printf '%s\n' "$json" | scale_for "$name")"
+    if [ "$name" = "$primary" ] || [ "$first" -eq 1 ]; then
+      apply_rule "$name,preferred,0x0,$scale"
+      first=0
+    else
+      apply_rule "$name,preferred,auto-right,$scale"
+    fi
+  done
+}
+
+apply_single() {
+  json="$1"
+  enabled="$2"
+
+  scale="$(printf '%s\n' "$json" | scale_for "$enabled")"
+  apply_rule "$enabled,preferred,0x0,$scale"
+
+  printf '%s\n' "$json" | connected_names | while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    [ "$name" != "$enabled" ] || continue
+    apply_rule "$name,disable"
+  done
+}
+
+apply_mirror() {
+  json="$1"
+  primary="$2"
+  printf '%s\n' "$json" | connected_names | while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    scale="$(printf '%s\n' "$json" | scale_for "$name")"
+    if [ "$name" = "$primary" ]; then
+      apply_rule "$name,preferred,0x0,$scale"
+    else
+      apply_rule "$name,preferred,auto,$scale,mirror,$primary"
+    fi
+  done
+}
+
+save_state() {
+  if [ "${HYPR_MONITOR_CYCLE_DRY_RUN:-0}" = "1" ]; then
+    printf 'state: %s\n' "$1"
+    return
+  fi
+
+  mkdir -p "$STATE_DIR"
+  printf '%s\n' "$1" > "$STATE_FILE"
+}
+
+show_indicator() {
+  mode="$1"
+  label="$2"
+
+  if [ "${HYPR_MONITOR_CYCLE_DRY_RUN:-0}" = "1" ]; then
+    printf 'indicator: %s|%s\n' "$mode" "$label"
+    return
+  fi
+
+  mkdir -p "$STATE_DIR"
+  printf '%s|%s|%s\n' "$mode" "$label" "$(date +%s)" > "$DISPLAY_STATE_FILE"
+}
+
+json="$(monitors_json)"
+active_count="$(printf '%s\n' "$json" | monitor_count)"
+connected_count_value="$(printf '%s\n' "$json" | connected_count)"
+
+if [ "$connected_count_value" -lt 1 ]; then
+  notify "No monitor was reported by Hyprland."
+  exit 1
+fi
+
+primary="$(printf '%s\n' "$json" | primary_name)"
+secondary="$(printf '%s\n' "$json" | secondary_name "$primary")"
+
+if [ -z "$secondary" ]; then
+  notify "Only one monitor is connected."
+  save_state "single"
+  exit 0
+fi
+
+current="$(cat "$STATE_FILE" 2>/dev/null || detect_mode "$json")"
+if [ "$connected_count_value" -le 1 ]; then
+  current="single"
+fi
+mode="$(next_mode "$current")"
+
+case "$mode" in
+  extend)
+    apply_extend "$json" "$primary"
+    label="Extend displays"
+    notify "$label"
+    ;;
+  mirror)
+    apply_mirror "$json" "$primary"
+    label="Duplicate displays"
+    notify "$label"
+    ;;
+  primary)
+    apply_single "$json" "$primary"
+    label="Primary display only: $primary"
+    notify "$label"
+    ;;
+  secondary)
+    apply_single "$json" "$secondary"
+    label="Second display only: $secondary"
+    notify "$label"
+    ;;
+esac
+
+save_state "$mode"
+show_indicator "$mode" "$label"
+
+# nwg-displays saves to this file; keep a stable path in the script for users.
+mkdir -p "$(dirname "$CONFIG_PATH")"

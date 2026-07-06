@@ -1,0 +1,80 @@
+#!/bin/sh
+set -eu
+
+CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+FLAG_PATH="$STATE_DIR/quickshell-notifications.enabled"
+
+quickshell_running() {
+  pgrep -u "${USER:-$(id -un)}" -x quickshell >/dev/null 2>&1 ||
+    pgrep -u "${USER:-$(id -un)}" -f "qs -p $CONFIG_PATH" >/dev/null 2>&1
+}
+
+restart_quickshell() {
+  if command -v qs >/dev/null 2>&1; then
+    if command -v timeout >/dev/null 2>&1; then
+      timeout 2 qs kill -p "$CONFIG_PATH" >/dev/null 2>&1 || timeout 2 qs kill >/dev/null 2>&1 || true
+    else
+      qs kill -p "$CONFIG_PATH" >/dev/null 2>&1 || qs kill >/dev/null 2>&1 || true
+    fi
+  fi
+
+  i=0
+  while quickshell_running && [ "$i" -lt 20 ]; do
+    sleep 0.1
+    i=$((i + 1))
+  done
+
+  if quickshell_running; then
+    pkill -TERM -u "${USER:-$(id -un)}" -x quickshell >/dev/null 2>&1 || true
+    pkill -TERM -u "${USER:-$(id -un)}" -f "qs -p $CONFIG_PATH" >/dev/null 2>&1 || true
+  fi
+
+  i=0
+  while quickshell_running && [ "$i" -lt 20 ]; do
+    sleep 0.1
+    i=$((i + 1))
+  done
+
+  if command -v hyprctl >/dev/null 2>&1; then
+    hyprctl dispatch exec "qs -p $CONFIG_PATH --no-duplicate --log-times" >/dev/null 2>&1 || true
+  elif command -v qs >/dev/null 2>&1; then
+    qs -p "$CONFIG_PATH" --no-duplicate >/tmp/quickshell-notifications.log 2>&1 &
+  fi
+}
+
+mask_legacy_daemons() {
+  systemctl --user stop mako.service dunst.service >/dev/null 2>&1 || true
+  systemctl --user mask mako.service dunst.service >/dev/null 2>&1 || true
+}
+
+case "${1:-status}" in
+  enable)
+    mkdir -p "$STATE_DIR"
+    mask_legacy_daemons
+    printf 'true\n' > "$FLAG_PATH"
+    restart_quickshell
+    printf 'Quickshell notifications enabled.\n'
+    ;;
+  disable)
+    mkdir -p "$STATE_DIR"
+    printf 'false\n' > "$FLAG_PATH"
+    restart_quickshell
+    printf 'Quickshell notifications disabled. No external notification daemon was started.\n'
+    ;;
+  status)
+    if [ -r "$FLAG_PATH" ]; then
+      printf 'quickshell=%s\n' "$(cat "$FLAG_PATH")"
+    else
+      printf 'quickshell=false\n'
+    fi
+    mako_state=$(systemctl --user --no-pager --plain is-active mako.service 2>/dev/null || true)
+    dunst_state=$(systemctl --user --no-pager --plain is-active dunst.service 2>/dev/null || true)
+    printf 'mako=%s\n' "${mako_state:-unknown}"
+    printf 'dunst=%s\n' "${dunst_state:-unknown}"
+    ;;
+  *)
+    printf 'usage: qs-notifications [enable|disable|status]\n' >&2
+    exit 2
+    ;;
+esac

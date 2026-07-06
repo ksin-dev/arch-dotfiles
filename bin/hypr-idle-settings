@@ -1,0 +1,214 @@
+#!/bin/sh
+set -eu
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/hypr"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+SETTINGS_PATH="$CONFIG_DIR/idle.json"
+GENERATED_PATH="$CONFIG_DIR/hypridle.generated.conf"
+LOG_PATH="${TMPDIR:-/tmp}/hypridle-settings.log"
+
+defaults() {
+  cat <<'JSON'
+{
+  "lockEnabled": true,
+  "lockTimeout": 300,
+  "displayEnabled": true,
+  "displayTimeout": 600,
+  "suspendEnabled": true,
+  "suspendTimeout": 900,
+  "hibernateEnabled": false,
+  "hibernateTimeout": 0
+}
+JSON
+}
+
+ensure_settings() {
+  mkdir -p "$CONFIG_DIR" "$STATE_DIR"
+
+  if [ ! -r "$SETTINGS_PATH" ]; then
+    defaults > "$SETTINGS_PATH"
+    return
+  fi
+
+  if command -v jq >/dev/null 2>&1; then
+    tmp="$SETTINGS_PATH.tmp.$$"
+    jq -s '.[0] * .[1]' "$(mktemp_defaults)" "$SETTINGS_PATH" > "$tmp"
+    mv "$tmp" "$SETTINGS_PATH"
+  fi
+}
+
+mktemp_defaults() {
+  tmp="${TMPDIR:-/tmp}/hypr-idle-defaults.$$"
+  defaults > "$tmp"
+  printf '%s\n' "$tmp"
+}
+
+setting_bool() {
+  key="$1"
+  fallback="$2"
+  ensure_settings
+  if command -v jq >/dev/null 2>&1; then
+    jq -r --arg key "$key" --arg fallback "$fallback" '.[$key] // ($fallback == "true")' "$SETTINGS_PATH"
+  else
+    printf '%s\n' "$fallback"
+  fi
+}
+
+setting_number() {
+  key="$1"
+  fallback="$2"
+  ensure_settings
+  if command -v jq >/dev/null 2>&1; then
+    jq -r --arg key "$key" --argjson fallback "$fallback" '.[$key] // $fallback' "$SETTINGS_PATH"
+  else
+    printf '%s\n' "$fallback"
+  fi
+}
+
+sanitize_timeout() {
+  value="$1"
+  min="$2"
+  max="$3"
+
+  case "$value" in
+    ''|*[!0-9]*) value="$min" ;;
+  esac
+
+  if [ "$value" -lt "$min" ]; then
+    value="$min"
+  elif [ "$value" -gt "$max" ]; then
+    value="$max"
+  fi
+
+  printf '%s\n' "$value"
+}
+
+write_config() {
+  ensure_settings
+
+  lock_enabled="$(setting_bool lockEnabled true)"
+  lock_timeout="$(sanitize_timeout "$(setting_number lockTimeout 300)" 30 7200)"
+  display_enabled="$(setting_bool displayEnabled true)"
+  display_timeout="$(sanitize_timeout "$(setting_number displayTimeout 600)" 30 7200)"
+  suspend_enabled="$(setting_bool suspendEnabled true)"
+  suspend_timeout="$(sanitize_timeout "$(setting_number suspendTimeout 900)" 60 14400)"
+  hibernate_enabled="$(setting_bool hibernateEnabled false)"
+  hibernate_timeout="$(sanitize_timeout "$(setting_number hibernateTimeout 0)" 0 28800)"
+
+  tmp="$GENERATED_PATH.tmp.$$"
+  {
+    printf 'general {\n'
+    printf '    lock_cmd = if command -v hyprlock >/dev/null 2>&1; then pidof hyprlock >/dev/null 2>&1 || hyprlock; else loginctl lock-session; fi\n'
+    printf '    before_sleep_cmd = if command -v hyprlock >/dev/null 2>&1; then pidof hyprlock >/dev/null 2>&1 || hyprlock; else loginctl lock-session; fi\n'
+    printf '    after_sleep_cmd = hyprctl dispatch dpms on\n'
+    printf '}\n\n'
+
+    if [ "$lock_enabled" = true ]; then
+      printf 'listener {\n'
+      printf '    timeout = %s\n' "$lock_timeout"
+      printf '    on-timeout = if command -v hyprlock >/dev/null 2>&1; then pidof hyprlock >/dev/null 2>&1 || hyprlock; else loginctl lock-session; fi\n'
+      printf '}\n\n'
+    fi
+
+    if [ "$display_enabled" = true ]; then
+      printf 'listener {\n'
+      printf '    timeout = %s\n' "$display_timeout"
+      printf '    on-timeout = hyprctl dispatch dpms off\n'
+      printf '    on-resume = hyprctl dispatch dpms on\n'
+      printf '}\n\n'
+    fi
+
+    if [ "$suspend_enabled" = true ]; then
+      printf 'listener {\n'
+      printf '    timeout = %s\n' "$suspend_timeout"
+      printf '    on-timeout = systemctl suspend\n'
+      printf '}\n\n'
+    fi
+
+    if [ "$hibernate_enabled" = true ] && [ "$hibernate_timeout" -gt 0 ]; then
+      printf 'listener {\n'
+      printf '    timeout = %s\n' "$hibernate_timeout"
+      printf '    on-timeout = systemctl hibernate\n'
+      printf '}\n\n'
+    fi
+  } > "$tmp"
+  mv "$tmp" "$GENERATED_PATH"
+}
+
+restart_hypridle() {
+  if ! command -v hypridle >/dev/null 2>&1; then
+    command -v notify-send >/dev/null 2>&1 && notify-send "Hypridle unavailable" "Install hypridle to apply idle settings" || true
+    return 0
+  fi
+
+  pkill -x hypridle >/dev/null 2>&1 || true
+  if command -v setsid >/dev/null 2>&1; then
+    setsid hypridle -c "$GENERATED_PATH" > "$LOG_PATH" 2>&1 &
+  else
+    nohup hypridle -c "$GENERATED_PATH" > "$LOG_PATH" 2>&1 &
+  fi
+}
+
+set_value() {
+  key="$1"
+  value="$2"
+  ensure_settings
+
+  case "$key" in
+    lockEnabled|displayEnabled|suspendEnabled|hibernateEnabled)
+      case "$value" in
+        true|1|yes|on) value=true ;;
+        *) value=false ;;
+      esac
+      jq_filter='.[$key] = ($value == "true")'
+      ;;
+    lockTimeout|displayTimeout|suspendTimeout|hibernateTimeout)
+      case "$value" in
+        ''|*[!0-9]*) value=0 ;;
+      esac
+      jq_filter='.[$key] = ($value | tonumber)'
+      ;;
+    *)
+      printf 'unknown setting: %s\n' "$key" >&2
+      exit 2
+      ;;
+  esac
+
+  if ! command -v jq >/dev/null 2>&1; then
+    printf 'jq is required to update idle settings\n' >&2
+    exit 1
+  fi
+
+  tmp="$SETTINGS_PATH.tmp.$$"
+  jq --arg key "$key" --arg value "$value" "$jq_filter" "$SETTINGS_PATH" > "$tmp"
+  mv "$tmp" "$SETTINGS_PATH"
+}
+
+case "${1:-get}" in
+  get)
+    ensure_settings
+    cat "$SETTINGS_PATH"
+    ;;
+  set)
+    [ "$#" -eq 3 ] || { printf 'usage: hypr-idle-settings set <key> <value>\n' >&2; exit 2; }
+    set_value "$2" "$3"
+    write_config
+    restart_hypridle
+    ;;
+  apply|start)
+    write_config
+    restart_hypridle
+    ;;
+  write)
+    write_config
+    ;;
+  path)
+    ensure_settings
+    write_config
+    printf '%s\n' "$GENERATED_PATH"
+    ;;
+  *)
+    printf 'usage: hypr-idle-settings [get|set <key> <value>|apply|start|write|path]\n' >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,65 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+usage:
+  qs-shell -s
+  qs-shell <target> <function> [args...]
+
+examples:
+  qs-shell mpris getActive trackTitle
+  qs-shell drawers toggle media
+  qs-shell notifs clear
+EOF
+}
+
+show_targets() {
+  cat <<'EOF'
+target drawers
+  function toggle(drawer: string): void
+  function list(): string
+target notifs
+  function clear(): void
+target lock
+  function lock(): void
+  function unlock(): void
+  function isLocked(): bool
+target mpris
+  function playPause(): void
+  function getActive(prop: string): string
+  function next(): void
+  function stop(): void
+  function play(): void
+  function list(): string
+  function pause(): void
+  function previous(): void
+target picker
+  function openFreeze(): void
+  function open(): void
+target wallpaper
+  function set(path: string): void
+  function get(): string
+  function list(): string
+EOF
+}
+
+case "${1:-}" in
+  -s | --show | --list)
+    show_targets
+    ;;
+  -h | --help | "")
+    usage
+    ;;
+  shell)
+    shift
+    [ "$#" -gt 0 ] || {
+      usage >&2
+      exit 2
+    }
+    qs ipc call "$@"
+    ;;
+  *)
+    qs ipc call "$@"
+    ;;
+esac

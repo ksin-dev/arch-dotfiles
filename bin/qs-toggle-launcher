@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell"
+
+if qs ipc call launcher toggle >/dev/null 2>&1; then
+  exit 0
+fi
+
+qs -p "$CONFIG_PATH" --no-duplicate >/tmp/quickshell-launcher.log 2>&1 &
+sleep 0.2
+qs ipc call launcher toggle >/dev/null 2>&1 || true

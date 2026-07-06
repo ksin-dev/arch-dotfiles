@@ -1,0 +1,33 @@
+# Minimal theme bridge. Most colors come from the terminal palette.
+
+[mgr]
+cwd = { fg = "cyan" }
+hovered = { fg = "black", bg = "blue" }
+preview_hovered = { fg = "black", bg = "blue" }
+find_keyword = { fg = "yellow", bold = true }
+find_position = { fg = "magenta", bg = "reset", bold = true }
+marker_copied = { fg = "green", bg = "green" }
+marker_cut = { fg = "red", bg = "red" }
+marker_marked = { fg = "cyan", bg = "cyan" }
+
+[status]
+separator_open = ""
+separator_close = ""
+
+[input]
+border = { fg = "blue" }
+selected = { reversed = true }
+
+[pick]
+border = { fg = "blue" }
+
+[tasks]
+border = { fg = "blue" }
+
+[which]
+mask = { bg = "black" }
+cand = { fg = "cyan" }
+rest = { fg = "gray" }
+desc = { fg = "magenta" }
+separator = " -> "
+separator_style = { fg = "gray" }
