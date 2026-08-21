@@ -123,15 +123,15 @@ Apply a color scheme from the repository root:
 
 The script generates theme files for:
 
-- Hyprland window borders: `config/hypr/theme/hyprland.conf`
+- Hyprland palette data: `config/hypr/theme/palette.lua`
 - Quickshell shell: `config/quickshell/Theme.js`
 - Kitty colors: `config/kitty/theme.conf`
 - Alacritty colors: `config/hypr/theme/alacritty.toml`
 - GTK colors: `config/gtk-3.0`, `config/gtk-4.0`
 - Chrome dark/light flags: `config/chrome-flags.conf`
 
-Hyprland sources the generated file from `hyprland.conf`. Quickshell imports the
-generated `Theme.js`, which exposes both `Theme.mode` and
+Hyprland loads the generated palette from `hyprland.lua` and computes its
+border/shadow colors in Lua. Quickshell imports the generated `Theme.js`, which exposes both `Theme.mode` and
 `Theme.colorScheme`. Kitty includes `theme.conf` from `kitty.conf`, and
 Alacritty imports the generated TOML from `alacritty.toml`.
 

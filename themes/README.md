@@ -48,7 +48,7 @@ matching variant.
 
 `apply-theme.sh` writes:
 
-- `config/hypr/theme/hyprland.conf`: Hyprland active/inactive border colors
+- `config/hypr/theme/palette.lua`: palette data read by Hyprland's Lua config
 - `config/hypr/theme/alacritty.toml`: Alacritty color palette
 - `config/kitty/theme.conf`: Kitty color palette
 - `config/quickshell/Theme.js`: Quickshell shell color tokens, including

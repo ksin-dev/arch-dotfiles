@@ -37,7 +37,7 @@ PanelWindow {
     }
 
     function reload() {
-        loader.exec(["sh", "-c", "printf '__HYPR__\\n'; cat \"$HOME/.config/hypr/keybinds.conf\" 2>/dev/null; printf '\\n__YAZI__\\n'; cat \"$HOME/.config/yazi/keymap.toml\" 2>/dev/null"]);
+        loader.exec(["sh", "-c", "printf '__HYPR__\\n'; cat \"$HOME/.config/hypr/keybinds.lua\" 2>/dev/null; printf '\\n__YAZI__\\n'; cat \"$HOME/.config/yazi/keymap.toml\" 2>/dev/null"]);
     }
 
     function show() {

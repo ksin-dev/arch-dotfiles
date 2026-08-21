@@ -57,27 +57,48 @@ function parseHyprland(text) {
     for (let i = 0; i < lines.length; i++) {
         const rawLine = lines[i];
         const line = rawLine.trim();
-        const groupMatch = line.match(/^#\s*@group\s+(.+)$/);
+        const groupMatch = line.match(/^(?:#|--)\s*@group\s+(.+)$/);
         if (groupMatch) {
             group = groupMatch[1].trim();
             continue;
         }
 
-        const submapMatch = line.match(/^submap\s*=\s*(.+)$/);
+        const submapMatch = line.match(/^submap\s*=\s*(.+)$/) || line.match(/^hl\.define_submap\("([^"]+)"/);
         if (submapMatch) {
             const name = submapMatch[1].trim();
             submap = name === "reset" ? "" : name;
             continue;
         }
 
-        const helpMatch = rawLine.match(/\s#\s*help:\s*(.+)$/);
+        if (submap && line === "end)") {
+            submap = "";
+            continue;
+        }
+
+        const helpMatch = rawLine.match(/\s(?:#|--)\s*help:\s*(.+)$/);
         if (!helpMatch)
             continue;
 
-        const bindPart = rawLine.split("#")[0].trim();
-        const bindMatch = bindPart.match(/^(bind\w*)\s*=\s*([^,]*),\s*([^,]*),/);
-        if (!bindMatch)
-            continue;
+        const bindPart = rawLine.split(/\s(?:#|--)\s*help:/)[0].trim();
+        let bindMatch = bindPart.match(/^(bind\w*)\s*=\s*([^,]*),\s*([^,]*),/);
+        if (!bindMatch) {
+            const luaMatch = bindPart.match(/^(?:exec|bind)\(([^,]+),/);
+            if (!luaMatch)
+                continue;
+
+            const combo = luaMatch[1]
+                .split("mainMod").join("SUPER")
+                .replace(/\s*\.\.\s*/g, "")
+                .replace(/["']/g, "")
+                .trim();
+            const separator = combo.lastIndexOf(" + ");
+            const modifier = separator >= 0 ? combo.slice(0, separator) : "";
+            const key = separator >= 0 ? combo.slice(separator + 3) : combo;
+            const flags = bindPart.includes("repeating = true") ? "e" : "";
+            const locked = bindPart.includes("locked = true") ? "l" : "";
+            const mouse = bindPart.includes("mouse = true") ? "m" : "";
+            bindMatch = [bindPart, `bind${flags}${locked}${mouse}`, modifier, key];
+        }
 
         items.push({
             source: "Hyprland",

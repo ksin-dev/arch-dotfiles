@@ -3,6 +3,20 @@
 *.swo
 *~
 
+# Secrets and machine-local credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+credentials.json
+secrets.json
+*.credentials
+*.secret
+
 # Local temporary backups
 backup-*/
 
