@@ -18,7 +18,11 @@ end
 
 -- @group Apps
 exec(mainMod .. " + Return", terminal, "Open terminal") -- help: Open terminal
-exec(mainMod .. " + CTRL + escape", "~/.local/bin/hypr-btop", "Open btop") -- help: Open btop
+exec(mainMod .. " + CTRL + escape", terminal .. " --title dotfiles-btop -e btop", "Open btop", nil, {
+    float = true,
+    size = { "80%", "80%" },
+    center = true,
+}) -- help: Open btop
 exec(mainMod .. " + E", "kitty -e " .. fileManager, "Open terminal file manager", nil, {
     float = true,
     size = { "80%", "70%" },
@@ -104,6 +108,8 @@ for workspace = 1, 10 do
 end
 bind(mainMod .. " + Z", hl.dsp.workspace.toggle_special("magic"), "Toggle scratchpad workspace") -- help: Toggle scratchpad workspace
 bind(mainMod .. " + SHIFT + Z", hl.dsp.window.move({ workspace = "special:magic" }), "Move window to scratchpad") -- help: Move window to scratchpad
+bind(mainMod .. " + M", hl.dsp.workspace.toggle_special("music"), "Toggle music workspace") -- help: Toggle music workspace
+bind(mainMod .. " + SHIFT + M", hl.dsp.window.move({ workspace = "special:music" }), "Move window to music workspace") -- help: Move window to music workspace
 bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Switch to next workspace") -- help: Switch to next workspace
 bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Switch to previous workspace") -- help: Switch to previous workspace
 

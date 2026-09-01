@@ -3186,7 +3186,7 @@ Item {
     PollText {
         id: specialWorkspaceStatus
         interval: 1000
-        command: ["sh", "-c", "name=$(hyprctl monitors -j 2>/dev/null | jq -r '([.[] | select(.focused == true)][0].specialWorkspace.name // \"\")' 2>/dev/null); [ -n \"$name\" ] || exit 0; windows=$(hyprctl workspaces -j 2>/dev/null | jq -r --arg name \"$name\" '([.[] | select(.name == $name)][0].windows // 0)' 2>/dev/null); printf '%s|%s' \"$name\" \"${windows:-0}\""]
+        command: ["sh", "-c", "monitor=" + bar.shellQuote(bar.screenName()) + "; name=$(hyprctl monitors -j 2>/dev/null | jq -r --arg monitor \"$monitor\" '([.[] | select(.name == $monitor)][0].specialWorkspace.name // \"\")' 2>/dev/null); [ -n \"$name\" ] || exit 0; windows=$(hyprctl workspaces -j 2>/dev/null | jq -r --arg name \"$name\" '([.[] | select(.name == $name)][0].windows // 0)' 2>/dev/null); printf '%s|%s' \"$name\" \"${windows:-0}\""]
     }
 
     PollText {
@@ -3418,6 +3418,35 @@ Item {
     }
 
     PanelWindow {
+        id: specialWorkspaceFrame
+
+        screen: bar.modelData
+        visible: bar.specialWorkspaceVisible()
+        color: "transparent"
+        focusable: false
+        exclusiveZone: 0
+        exclusionMode: ExclusionMode.Ignore
+        mask: Region {}
+
+        anchors {
+            top: true
+            bottom: true
+            left: true
+            right: true
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: 6
+            radius: bar.appearanceRounding(12)
+            color: "transparent"
+            border.color: Theme.accent
+            border.width: 2
+            opacity: 0.58
+        }
+    }
+
+    PanelWindow {
         id: revealZone
 
         screen: bar.modelData
@@ -3500,6 +3529,7 @@ Item {
 
                     height: 34
                     width: expanded ? workspacesRow.implicitWidth + 18 : 48
+                    border.color: bar.specialWorkspaceVisible() ? Theme.accent2 : Theme.border
                     clip: true
 
                     Behavior on width { NumberAnimation { duration: workspaceGroup.motionMs; easing.type: Easing.OutCubic } }
@@ -3509,8 +3539,8 @@ Item {
                         width: 30
                         height: 24
                         radius: height / 2
-                        color: Theme.accent
-                        border.color: Theme.accent
+                        color: bar.specialWorkspaceVisible() ? Theme.accent2 : Theme.accent
+                        border.color: color
                         border.width: 1
                         opacity: workspaceGroup.expanded ? 0 : 1
                         scale: workspaceGroup.expanded ? 0.86 : 1
@@ -3520,7 +3550,7 @@ Item {
 
                         Text {
                             anchors.centerIn: parent
-                            text: Hyprland.focusedWorkspace !== null ? Hyprland.focusedWorkspace.id : 1
+                            text: bar.specialWorkspaceVisible() ? "◆" : (Hyprland.focusedWorkspace !== null ? Hyprland.focusedWorkspace.id : 1)
                             color: Theme.accentFg
                             font.family: bar.workspaceFontFamily()
                             font.pixelSize: bar.barLabelFontSize()
@@ -3614,9 +3644,11 @@ Item {
 
                 Pill {
                     visible: bar.barEntryEnabled("workspaces") && bar.specialWorkspaceVisible()
+                    anchors.verticalCenter: parent.verticalCenter
+                    accented: true
                     iconSource: bar.specialWorkspaceIconSource()
-                    label: `scratch ${bar.specialWorkspaceLabel()}${bar.specialWorkspaceWindowSuffix()}`
-                    maxWidth: 132
+                    label: `SPECIAL · ${bar.specialWorkspaceLabel()}${bar.specialWorkspaceWindowSuffix()}`
+                    maxWidth: 148
                     onClicked: Hyprland.dispatch("togglespecialworkspace " + bar.specialWorkspaceTarget())
                 }
 
@@ -6479,13 +6511,14 @@ Item {
         property string label: ""
         property string iconSource: ""
         property int maxWidth: 9999
+        property bool accented: false
         signal clicked(int button)
 
         height: 24
         width: Math.min(maxWidth, content.implicitWidth + (iconSource.length > 0 ? 38 : 18))
         radius: 8
-        color: mouse.containsMouse ? Theme.surfaceHover : Theme.surface
-        border.color: Theme.border
+        color: mouse.containsMouse ? Theme.surfaceHover : (accented ? Theme.bgAlt : Theme.surface)
+        border.color: accented ? Theme.accent : Theme.border
         border.width: 1
 
         Row {
@@ -6506,7 +6539,7 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 text: parent.parent.label
-                color: Theme.fg
+                color: parent.parent.accented ? Theme.accent : Theme.fg
                 font.family: bar.appearanceFontFamily("label", "")
                 font.pixelSize: bar.barLabelFontSize()
                 elide: Text.ElideRight
