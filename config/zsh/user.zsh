@@ -8,7 +8,8 @@ if [[ $- == *i* ]]; then
     elif command -v pokemon-colorscripts >/dev/null; then
         pokemon-colorscripts --no-title -r 1,3,6
     elif command -v fastfetch >/dev/null; then
-        if do_render "image"; then
+        # HyDE supplies do_render; outside HyDE, render directly.
+        if (( ! $+functions[do_render] )) || do_render "image"; then
             fastfetch --logo-type kitty
         fi
     fi
@@ -23,7 +24,5 @@ fi
 if [[ ${HYDE_ZSH_NO_PLUGINS} != "1" ]]; then
     #  OMZ Plugins 
     # manually add your oh-my-zsh plugins here
-    plugins=(
-        "sudo"
-    )
+    plugins+=("sudo" "mise")
 fi

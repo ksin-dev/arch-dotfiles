@@ -78,6 +78,10 @@ export ZSH="$ZDOTDIR/ohmyzsh"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git fzf fzf-tab zsh-autosuggestions zsh-syntax-highlighting)
+
+# Load personal startup commands and plugin overrides before Oh My Zsh initializes.
+[[ -r "$ZDOTDIR/user.zsh" ]] && source "$ZDOTDIR/user.zsh"
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration

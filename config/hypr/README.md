@@ -70,7 +70,7 @@ DOTFILES_SKIP_PACKAGES=1 ./install.sh hypr
 Manual install on Arch Linux:
 
 ```sh
-sudo pacman -S hyprland hyprpaper hypridle hyprlock bluez blueman fcitx5 fcitx5-hangul kitty yazi nautilus jq nwg-displays
+sudo pacman -S hyprland hyprpaper hypridle hyprlock bluez blueman fcitx5 fcitx5-hangul kitty yazi nautilus jq nwg-displays grim slurp swappy
 ```
 
 Quickshell is installed from AUR if it is not already available:
@@ -78,6 +78,10 @@ Quickshell is installed from AUR if it is not already available:
 ```sh
 paru -S quickshell-git
 ```
+
+The installer also creates `~/.config/swappy/config` when it does not already
+exist. Screenshots saved from Swappy are written to
+`~/Pictures/Screenshots` by default.
 
 ## Bluetooth
 

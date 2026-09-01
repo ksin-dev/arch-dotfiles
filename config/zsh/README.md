@@ -76,7 +76,7 @@ cp ~/.config/zsh/zsh.local.zsh.example ~/.config/zsh.local.zsh
 
 Use that local file for paths such as:
 
-- `asdf`
+- `mise`
 - Flutter SDK
 - Android Studio
 - Android SDK

@@ -114,9 +114,12 @@ install_selected_packages() {
       yazi \
       nautilus \
       jq \
-      nwg-displays
-    install_quickshell_package
+      nwg-displays \
+      grim \
+      slurp \
+      swappy
     enable_bluetooth_service
+    install_quickshell_package
   fi
 
   if is_selected "quickshell"; then
@@ -409,6 +412,8 @@ if is_selected "hypr" || is_selected "quickshell"; then
 fi
 
 if is_selected "hypr"; then
+  mkdir -p "$HOME/Pictures/Screenshots"
+  ensure_user_config_file "$CONFIG_DIR/swappy/config" "$HOME/.config/swappy/config"
   ensure_user_config_file "$CONFIG_DIR/dotfiles/hypr/monitors.conf.example" "$HOME/.config/dotfiles/hypr/monitors.conf"
   ensure_user_config_file "$CONFIG_DIR/dotfiles/hypr/workspaces.conf.example" "$HOME/.config/dotfiles/hypr/workspaces.conf"
   ensure_user_config_file "$CONFIG_DIR/dotfiles/hypr/idle.json.example" "$HOME/.config/dotfiles/hypr/idle.json"

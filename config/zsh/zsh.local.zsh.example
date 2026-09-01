@@ -1,8 +1,8 @@
 # Copy this file to ~/.config/zsh.local.zsh and edit it for each machine.
 # The installer does not create, replace, or delete ~/.config/zsh.local.zsh.
 
-# asdf
-export PATH="$HOME/.asdf/shims:$PATH"
+# mise is activated by the Oh My Zsh `mise` plugin in user.zsh.
+# Put additional mise-specific settings here only when needed.
 
 # Flutter
 export PATH="/opt/flutter/bin:$PATH"
