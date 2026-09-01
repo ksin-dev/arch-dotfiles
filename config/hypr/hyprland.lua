@@ -125,6 +125,21 @@ hl.window_rule({
     no_focus = true,
 })
 
+-- KakaoTalk creates a short-lived, untitled XWayland helper for wheel input.
+-- It must not replace the focused chat window when it opens or disappears.
+hl.window_rule({
+    name = "ignore-kakaotalk-wheel-helper",
+    match = {
+        class = "^kakaotalk\\.exe$",
+        title = "^$",
+        xwayland = true,
+        float = true,
+    },
+    no_initial_focus = true,
+    no_focus = true,
+    no_follow_mouse = true,
+})
+
 hl.window_rule({
     name = "move-hyprland-run",
     match = { class = "hyprland-run" },
