@@ -78,6 +78,27 @@ install_quickshell_package() {
   install_arch_packages "quickshell" quickshell-git
 }
 
+enable_bluetooth_service() {
+  if [ "${DOTFILES_SKIP_PACKAGES:-0}" = "1" ]; then
+    return
+  fi
+
+  if ! command -v systemctl >/dev/null 2>&1; then
+    printf 'skip: systemctl not found; enable bluetooth.service manually\n' >&2
+    return
+  fi
+
+  if ! systemctl is-enabled --quiet bluetooth.service 2>/dev/null; then
+    printf 'enable: bluetooth.service\n'
+    sudo systemctl enable bluetooth.service
+  fi
+
+  if ! systemctl is-active --quiet bluetooth.service; then
+    printf 'start: bluetooth.service\n'
+    sudo systemctl start bluetooth.service
+  fi
+}
+
 install_selected_packages() {
   if is_selected "hypr"; then
     install_arch_packages "hypr" \
@@ -85,6 +106,8 @@ install_selected_packages() {
       hyprpaper \
       hypridle \
       hyprlock \
+      bluez \
+      blueman \
       fcitx5 \
       fcitx5-hangul \
       kitty \
@@ -93,6 +116,7 @@ install_selected_packages() {
       jq \
       nwg-displays
     install_quickshell_package
+    enable_bluetooth_service
   fi
 
   if is_selected "quickshell"; then

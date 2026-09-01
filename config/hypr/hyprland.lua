@@ -136,6 +136,7 @@ require("keybinds")
 
 hl.on("hyprland.start", function()
     hl.exec_cmd("fcitx5 -d")
+    hl.exec_cmd("blueman-applet")
     hl.exec_cmd("qs -p ~/.config/quickshell --no-duplicate & hyprpaper & ~/.local/bin/hypr-idle-settings start & wl-paste --watch cliphist store")
     hl.exec_cmd("hyprpm reload -n")
 end)

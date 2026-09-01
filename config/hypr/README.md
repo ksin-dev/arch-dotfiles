@@ -27,6 +27,8 @@ session and can be removed after the Lua setup has been used successfully.
 - `hyprpaper`
 - `hypridle`
 - `hyprlock`
+- `bluez`: Bluetooth daemon and `bluetoothctl`
+- `blueman`: Bluetooth manager and Hyprland tray applet
 - `fcitx5`
 - `kitty`
 - `yazi`
@@ -68,13 +70,24 @@ DOTFILES_SKIP_PACKAGES=1 ./install.sh hypr
 Manual install on Arch Linux:
 
 ```sh
-sudo pacman -S hyprland hyprpaper hypridle hyprlock fcitx5 fcitx5-hangul kitty yazi nautilus jq nwg-displays
+sudo pacman -S hyprland hyprpaper hypridle hyprlock bluez blueman fcitx5 fcitx5-hangul kitty yazi nautilus jq nwg-displays
 ```
 
 Quickshell is installed from AUR if it is not already available:
 
 ```sh
 paru -S quickshell-git
+```
+
+## Bluetooth
+
+When `hypr` is installed, the installer enables and starts BlueZ through
+`bluetooth.service`. Hyprland starts `blueman-applet` for its tray icon; the
+same manager is available from the Quickshell Bluetooth panel. To start the
+service manually:
+
+```sh
+sudo systemctl enable --now bluetooth.service
 ```
 
 ## Launcher
