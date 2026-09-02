@@ -1,5 +1,5 @@
 local mainMod = "SUPER"
-local terminal = "alacritty"
+local terminal = "kitty"
 local fileManager = "yazi"
 local guiFileManager = "nautilus"
 local menu = "~/.local/bin/qs-toggle-launcher"
