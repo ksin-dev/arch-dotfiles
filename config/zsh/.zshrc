@@ -80,6 +80,7 @@ export ZSH="$ZDOTDIR/ohmyzsh"
 plugins=(git fzf fzf-tab zsh-autosuggestions zsh-syntax-highlighting)
 
 # Load personal startup commands and plugin overrides before Oh My Zsh initializes.
+[[ -r "$ZDOTDIR/functions/clipboard.zsh" ]] && source "$ZDOTDIR/functions/clipboard.zsh"
 [[ -r "$ZDOTDIR/user.zsh" ]] && source "$ZDOTDIR/user.zsh"
 
 source $ZSH/oh-my-zsh.sh
