@@ -41,12 +41,7 @@ return {
             )
 
             if vim.fn.executable("kitten") == 0 then
-              vim.notify("Opening remote folders requires `kitten ssh` for this SSH session", vim.log.levels.ERROR)
-              return
-            end
-
-            if not vim.env.KITTY_LISTEN_ON or vim.env.KITTY_LISTEN_ON == "" then
-              vim.notify("Reconnect with `kitten ssh <host>` before opening a remote folder", vim.log.levels.ERROR)
+              vim.notify("Opening remote folders requires the `kitten` command on this SSH host", vim.log.levels.ERROR)
               return
             end
 
