@@ -324,6 +324,10 @@ for name in $CONFIGS; do
       hypr | nvim | quickshell)
         link_config "$name"
         ;;
+      gtk-3.0 | gtk-4.0)
+        install_config_subfile "$name/settings.ini" "$name/settings.ini"
+        install_config_subfile "$name/gtk.css" "$name/gtk.css"
+        ;;
       chrome)
         install_config_file "chrome-flags.conf"
         ;;

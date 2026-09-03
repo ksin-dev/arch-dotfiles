@@ -60,6 +60,14 @@ copy_config_file() {
 
 for name in $CONFIGS; do
   case "$name" in
+    gtk-3.0)
+      copy_config_file "gtk-3.0/settings.ini"
+      copy_config_file "gtk-3.0/gtk.css"
+      ;;
+    gtk-4.0)
+      copy_config_file "gtk-4.0/settings.ini"
+      copy_config_file "gtk-4.0/gtk.css"
+      ;;
     herdr)
       copy_config_file "herdr/config.toml"
       ;;
