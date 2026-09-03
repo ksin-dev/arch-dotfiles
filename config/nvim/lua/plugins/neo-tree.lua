@@ -46,15 +46,21 @@ return {
             end
 
             local file_manager = vim.env.NVIM_REMOTE_FILE_MANAGER or "nautilus"
+            local stderr = {}
             vim.fn.jobstart({ "kitten", "@", "launch", "--type=background", "--no-response", file_manager, sftp_url }, {
-              detach = true,
+              stderr_buffered = true,
+              on_stderr = function(_, data)
+                for _, line in ipairs(data or {}) do
+                  if line ~= "" then
+                    table.insert(stderr, line)
+                  end
+                end
+              end,
               on_exit = function(_, code)
                 if code ~= 0 then
                   vim.schedule(function()
-                    vim.notify(
-                      string.format("Kitty could not open the SFTP folder with %s (exit %d)", file_manager, code),
-                      vim.log.levels.ERROR
-                    )
+                    local detail = #stderr > 0 and (": " .. table.concat(stderr, " ")) or ""
+                    vim.notify(string.format("Kitty could not open the SFTP folder (exit %d)%s", code, detail), vim.log.levels.ERROR)
                   end)
                 end
               end,
