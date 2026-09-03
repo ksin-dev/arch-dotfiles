@@ -40,11 +40,6 @@ return {
               vim.uri_encode(path)
             )
 
-            if vim.env.TERM ~= "xterm-kitty" then
-              vim.notify("Opening remote folders requires a Kitty terminal", vim.log.levels.ERROR)
-              return
-            end
-
             local file_manager = vim.env.NVIM_REMOTE_FILE_MANAGER or "nautilus"
             local command = {
               cmd = "launch",
