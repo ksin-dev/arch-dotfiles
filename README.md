@@ -46,7 +46,9 @@ dotfiles/
 ./backup.sh
 ```
 
-This copies matching directories from `~/.config` into `./config`.
+This copies selected entries from `~/.config` into `./config`. GTK backups
+include only `settings.ini` and `gtk.css`, keeping bookmarks, remote servers,
+and other application state on the local machine.
 
 ## Install
 
