@@ -50,12 +50,16 @@ return {
               return
             end
 
-            vim.fn.jobstart({ "kitten", "@", "launch", "--type=background", "--no-response", "xdg-open", sftp_url }, {
+            local file_manager = vim.env.NVIM_REMOTE_FILE_MANAGER or "nautilus"
+            vim.fn.jobstart({ "kitten", "@", "launch", "--type=background", "--no-response", file_manager, sftp_url }, {
               detach = true,
               on_exit = function(_, code)
                 if code ~= 0 then
                   vim.schedule(function()
-                    vim.notify("Kitty could not open the local SFTP folder (exit " .. code .. ")", vim.log.levels.ERROR)
+                    vim.notify(
+                      string.format("Kitty could not open the SFTP folder with %s (exit %d)", file_manager, code),
+                      vim.log.levels.ERROR
+                    )
                   end)
                 end
               end,

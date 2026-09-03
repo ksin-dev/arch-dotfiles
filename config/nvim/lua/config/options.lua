@@ -6,7 +6,18 @@ vim.opt.relativenumber = false
 -- Route yanks through the terminal's OSC 52 clipboard bridge. This works both
 -- locally in Alacritty and across SSH sessions without requiring a clipboard
 -- provider on the remote host.
-vim.g.clipboard = "osc52"
+local osc52 = require("vim.ui.clipboard.osc52")
+vim.g.clipboard = {
+  name = "OSC 52",
+  copy = {
+    ["+"] = osc52.copy("+"),
+    ["*"] = osc52.copy("*"),
+  },
+  paste = {
+    ["+"] = osc52.paste("+"),
+    ["*"] = osc52.paste("*"),
+  },
+}
 
 -- LazyVim temporarily clears this option while it starts up. Restore it after
 -- that deferred setup so ordinary yanks use the OSC 52 provider as well.
