@@ -40,6 +40,9 @@ return {
               vim.uri_encode(path)
             )
 
+            require("vim.ui.clipboard.osc52").copy("+")({ sftp_url })
+            vim.notify("SFTP path copied. If the file manager does not open, paste it into the location bar.")
+
             local file_manager = vim.env.NVIM_REMOTE_FILE_MANAGER or "nautilus"
             local command = {
               cmd = "launch",
