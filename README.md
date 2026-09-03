@@ -46,7 +46,9 @@ dotfiles/
 ./backup.sh
 ```
 
-This copies matching directories from `~/.config` into `./config`.
+This copies selected entries from `~/.config` into `./config`. GTK backups
+include only `settings.ini` and `gtk.css`, keeping bookmarks, remote servers,
+and other application state on the local machine.
 
 ## Install
 
@@ -80,6 +82,8 @@ Install modes are split by how often the target writes machine-local state:
 - `hypr`, `nvim`, and `quickshell` are linked as full config directories.
 - `herdr` links only `~/.config/herdr/config.toml`; runtime logs, sockets, and
   sessions stay local.
+- `gtk-3.0` and `gtk-4.0` copy only `settings.ini` and `gtk.css`; bookmarks,
+  remote servers, and other application state stay local.
 - `zsh` is copied, while machine-specific environment variables stay in
   `~/.config/zsh.local.zsh`.
 - Other selected config directories are copied.
