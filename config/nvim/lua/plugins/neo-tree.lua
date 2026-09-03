@@ -40,31 +40,23 @@ return {
               vim.uri_encode(path)
             )
 
-            if vim.fn.executable("kitten") == 0 then
-              vim.notify("Opening remote folders requires the `kitten` command on this SSH host", vim.log.levels.ERROR)
+            if vim.env.TERM ~= "xterm-kitty" then
+              vim.notify("Opening remote folders requires a Kitty terminal", vim.log.levels.ERROR)
               return
             end
 
             local file_manager = vim.env.NVIM_REMOTE_FILE_MANAGER or "nautilus"
-            local stderr = {}
-            vim.fn.jobstart({ "kitten", "@", "launch", "--type=background", "--no-response", file_manager, sftp_url }, {
-              stderr_buffered = true,
-              on_stderr = function(_, data)
-                for _, line in ipairs(data or {}) do
-                  if line ~= "" then
-                    table.insert(stderr, line)
-                  end
-                end
-              end,
-              on_exit = function(_, code)
-                if code ~= 0 then
-                  vim.schedule(function()
-                    local detail = #stderr > 0 and (": " .. table.concat(stderr, " ")) or ""
-                    vim.notify(string.format("Kitty could not open the SFTP folder (exit %d)%s", code, detail), vim.log.levels.ERROR)
-                  end)
-                end
-              end,
-            })
+            local command = {
+              cmd = "launch",
+              version = { 0, 0, 0 },
+              no_response = true,
+              payload = {
+                args = { file_manager, sftp_url },
+                type = "background",
+                no_response = true,
+              },
+            }
+            vim.api.nvim_ui_send("\27P@kitty-cmd" .. vim.json.encode(command) .. "\27\\")
           end,
         },
         window = {
